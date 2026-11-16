@@ -3,8 +3,9 @@ name: Python unit tests
 on:
   pull_request:
     paths:
-      - "scripts/generate_daily_content.py"
+      - "scripts/**"
       - "tests/**"
+      - ".github/workflows/daily-social-publish.yml"
       - "requirements.txt"
       - ".github/workflows/python-unit-tests.yml"
 

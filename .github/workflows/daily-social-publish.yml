@@ -344,6 +344,19 @@ jobs:
             --out "${CONTENT_DIR}/github-actions-publish-results.json" \
             --dry-run
 
+      - name: Summarize publish outcomes
+        if: ${{ always() && !cancelled() }}
+        shell: bash
+        env:
+          SUMMARY_SCOPE: ${{ github.event_name == 'schedule' && 'all' || github.event.inputs.publish_scope || 'all' }}
+          SUMMARY_DRY_RUN: ${{ github.event.inputs.dry_run }}
+          SUMMARY_IG_ALLOWED: ${{ steps.instagram-cooldown.outputs.should_publish }}
+        run: |
+          args=(--content-dir "${CONTENT_DIR:-artifacts/not-generated}" --scope "$SUMMARY_SCOPE")
+          if [ "$SUMMARY_DRY_RUN" = "true" ]; then args+=(--dry-run); fi
+          if [ "$SUMMARY_IG_ALLOWED" = "false" ]; then args+=(--instagram-cooldown); fi
+          python scripts/summarize_publish_results.py "${args[@]}"
+
       - name: Upload publish log
         if: ${{ always() }}
         uses: actions/upload-artifact@v4
